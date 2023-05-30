@@ -10,7 +10,6 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 def greet_user(update, context):
     print('Вызван /start')
-    print(1/0)
     update.message.reply_text('Здравствуй, пользователь')
 
 
@@ -40,17 +39,37 @@ def planet_pos(update, context):
     print(const[1])
     update.message.reply_text(const[1])
 
+
+def next_fool_moon(update, context):
+    cur_date = date.today()
+    update.message.reply_text(ephem.next_full_moon(cur_date))
+
+
+def wordcount(update, context):
+    sentense = update.message.text
+    words = 0
+
+    # отсеивание комбинаций символов, не содержащих букв
+    if sentense:
+        words = len([word for word in sentense.split() if any([letter.isalpha() for letter in word])])-1
+
+    update.message.reply_text(f'количество слов: {words}')
+
+
 def main():
     mybot = Updater(settings.API_KEY)
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user))
     dp.add_handler(CommandHandler('planet', planet_pos))
+    dp.add_handler(CommandHandler('wordcount', wordcount))
+    dp.add_handler(CommandHandler('next_fool_moon', next_fool_moon))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     logging.info('Бот стартовал')
     mybot.start_polling()
     mybot.idle()
+
 
 if __name__ == '__main__':
     main()
